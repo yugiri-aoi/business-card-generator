@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>名刺ジェネレーター - KBS 旭工放送局</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Arial", sans-serif;
+    }
+    
+    body {
+      background-color: #f5f5f5;
+      padding: 20px;
+      font-family: sans-serif;
+    }
+    
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #333;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+    }
+    
+    .form-container {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .form-group {
+      margin-bottom: 15px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    
+    input, textarea {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+    
+    .button-container {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    
+    button {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      background-color: #4CAF50;
+      color: white;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s;
+    }
+    
+    button:hover {
+      background-color: #45a049;
+    }
+    
+    .button-secondary {
+      background-color: #2196F3;
+    }
+    
+    .button-secondary:hover {
+      background-color: #0b7dda;
+    }
+    
+    .templates {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    
+    .template {
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: all 0.3s;
+      width: 300px;
+      height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: white;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .template img {
+      max-width: 100%;
+      max-height: 100%;
+    }
+    
+    .template.selected {
+      border-color: #4CAF50;
+      box-shadow: 0 2px 15px rgba(76, 175, 80, 0.4);
+    }
+    
+    .preview-container {
+      display: flex;
+      justify-content: center;
+      margin-top: 30px;
+    }
+    
+    .preview {
+      width: 550px;
+      height: 300px;
+      background-color: white;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+      position: relative;
+      overflow: hidden;
+      border-radius: 8px;
+    }
+    
+    /* Name Card Styles */
+    .name-card {
+      width: 100%;
+      height: 100%;
+      padding: 20px;
+      position: relative;
+      background-color: white;
+      overflow: hidden;
+    }
+    
+    /* Template 1 Styles */
+    .name-card.template-1 .organization {
+      font-size: 26px;
+      font-weight: bold;
+      margin-bottom: 40px;
+    }
+    
+    .name-card.template-1 .position-container {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 20px;
+      position: relative;
+      padding-left: 20px;
+    }
+    
+    .name-card.template-1 .position-container::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 2px;
+      height: 100%;
+      background-color: #333;
+    }
+    
+    .name-card.template-1 .position, 
+    .name-card.template-1 .department {
+      font-size: 14px;
+      margin-bottom: 5px;
+    }
+    
+    .name-card.template-1 .name-container {
+      margin-bottom: 10px;
+    }
+    
+    .name-card.template-1 .name {
+      font-size: 60px;
+      font-weight: bold;
+      line-height: 1.1;
+    }
+    
+    .name-card.template-1 .name-en {
+      font-size: 18px;
+      margin-top: 5px;
+    }
+    
+    .name-card.template-1 .slogan {
+      position: absolute;
+      right: 20px;
+      bottom: 70px;
+      font-size: 14px;
+    }
+    
+    .name-card.template-1 .logo {
+      position: absolute;
+      right: 20px;
+      bottom: 20px;
+      width: 80px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .name-card.template-1 .logo-text {
+      font-size: 12px;
+      position: absolute;
+      bottom: 10px;
+      right: 20px;
+      text-align: center;
+    }
+    
+    /* Template 2 Styles */
+    .name-card.template-2 {
+      position: relative;
+    }
+    
+    .name-card.template-2 .organization {
+      font-size: 26px;
+      font-weight: bold;
+      margin-bottom: 40px;
+    }
+    
+    .name-card.template-2 .training-badge {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background-color: #a5d6a7;
+      color: #333;
+      font-weight: bold;
+      padding: 10px 15px;
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 14px;
+    }
+    
+    .name-card.template-2 .training-icon {
+      width: 40px;
+      height: 30px;
+      margin-top: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    /* Template 3 Styles */
+    .name-card.template-3 .contact-info {
+      margin-top: 20px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    
+    .name-card.template-3 .school-name {
+      font-size: 16px;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+    
+    /* Logo Styles */
+    .kbs-logo {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+    }
+    
+    .kbs-logo .left {
+      width: 30px;
+      height: 30px;
+      border: 3px solid black;
+      position: relative;
+    }
+    
+    .kbs-logo .left::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: black;
+      transform: translateY(-50%);
+    }
+    
+    .kbs-logo .right {
+      height: 30px;
+      width: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    
+    .kbs-logo .right::before,
+    .kbs-logo .right::after {
+      content: "";
+      height: 3px;
+      width: 20px;
+      background: black;
+      transform: rotate(45deg);
+      position: absolute;
+    }
+    
+    .kbs-logo .right::after {
+      transform: rotate(-45deg);
+    }
+    
+    .train-icon {
+      position: relative;
+      display: flex;
+    }
+    
+    .train-icon .left {
+      width: 20px;
+      height: 30px;
+      background: #f9d423;
+      border: 2px solid #5e3511;
+      border-right: none;
+      border-top-left-radius: 5px;
+      border-bottom-left-radius: 5px;
+    }
+    
+    .train-icon .right {
+      width: 20px;
+      height: 30px;
+      background: #26a69a;
+      border: 2px solid #5e3511;
+      border-left: none;
+      border-top-right-radius: 5px;
+      border-bottom-right-radius: 5px;
+    }
+    
+    .download-container {
+      text-align: center;
+      margin-top: 20px;
+    }
+    
+    #downloadBtn {
+      background-color: #ff9800;
+    }
+    
+    #downloadBtn:hover {
+      background-color: #e68a00;
+    }
+    
+    #printBtn {
+      background-color: #9c27b0;
+    }
+    
+    #printBtn:hover {
+      background-color: #7b1fa2;
+    }
+    
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      
+      .print-container, .print-container * {
+        visibility: visible;
+      }
+      
+      .print-container {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 91mm;
+        height: 55mm;
+        margin: 0;
+        padding: 0;
+      }
+      
+      .print-name-card {
+        width: 91mm;
+        height: 55mm;
+        box-shadow: none;
+        border: none;
+      }
+    }
+    
+    /* テンプレート選択用のオーバーレイ */
+    .template-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0,0,0,0);
+      z-index: 10;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>KBS 旭工放送局 名刺ジェネレーター</h1>
+    
+    <div class="form-container">
+      <h2>テンプレート選択</h2>
+      <div class="templates">
+        <div class="template template-1 selected" id="template-1">
+          <div class="name-card">
+            <div class="organization">KBS 旭工放送局</div>
+            <div class="position-container">
+              <div class="position">役職</div>
+              <div class="department">●年学科</div>
+            </div>
+            <div class="name-container">
+              <div class="name">田中 太郎</div>
+              <div class="name-en">Tarou Tanaka</div>
+            </div>
+            <div class="slogan">好きを、見つける。</div>
+            <div class="logo">
+              <div class="kbs-logo">
+                <div class="left"></div>
+                <div class="right"></div>
+              </div>
+            </div>
+            <div class="logo-text">Kyokko Broadcasting Station</div>
+          </div>
+          <div class="template-overlay" onclick="selectTemplate(1)"></div>
+        </div>
+        <div class="template template-2" id="template-2">
+          <div class="name-card">
+            <div class="organization">KBS 旭工放送局</div>
+            <div class="training-badge">
+              研修中
+              <div class="training-icon">
+                <div class="train-icon">
+                  <div class="left"></div>
+                  <div class="right"></div>
+                </div>
+              </div>
+            </div>
+            <div class="position-container">
+              <div class="position">役職</div>
+              <div class="department">●年学科</div>
+            </div>
+            <div class="name-container">
+              <div class="name">田中 太郎</div>
+              <div class="name-en">Tarou Tanaka</div>
+            </div>
+            <div class="slogan">好きを、見つける。</div>
+            <div class="logo">
+              <div class="kbs-logo">
+                <div class="left"></div>
+                <div class="right"></div>
+              </div>
+            </div>
+            <div class="logo-text">Kyokko Broadcasting Station</div>
+          </div>
+          <div class="template-overlay" onclick="selectTemplate(2)"></div>
+        </div>
+        <div class="template template-3" id="template-3">
+          <div class="name-card">
+            <div class="position-container">
+              <div class="position">役職</div>
+              <div class="department">●年学科</div>
+            </div>
+            <div class="name-container">
+              <div class="name">田中 太郎</div>
+              <div class="name-en">Tarou Tanaka</div>
+            </div>
+            <div class="school-name">北海道旭川工業高等学校 放送局 / KBS 旭工放送局</div>
+            <div class="contact-info">
+              〒078-8804<br>
+              北海道旭川市緑が丘東4条1丁目1-1　2階放送室<br>
+              E-mail:kbs.ahkc@gmail.com<br>
+              X(旧:Twitter):https://x.com/kbs_asahikawa<br>
+              http://www.kyokko.hokkaido-c.ed.jp/z20/r32
+            </div>
+            <div class="slogan">好きを、見つける。</div>
+            <div class="logo">
+              <div class="kbs-logo">
+                <div class="left"></div>
+                <div class="right"></div>
+              </div>
+            </div>
+            <div class="logo-text">Kyokko Broadcasting Station</div>
+          </div>
+          <div class="template-overlay" onclick="selectTemplate(3)"></div>
+        </div>
+      </div>
+      
+      <h2>情報入力</h2>
+      <div class="form-group">
+        <label for="organization">組織名</label>
+        <input type="text" id="organization" value="KBS 旭工放送局">
+      </div>
+      
+      <div class="form-group">
+        <label for="position">役職</label>
+        <input type="text" id="position" value="役職">
+      </div>
+      
+      <div class="form-group">
+        <label for="department">学年・学科</label>
+        <input type="text" id="department" value="●年学科">
+      </div>
+      
+      <div class="form-group">
+        <label for="name">名前</label>
+        <input type="text" id="name" value="田中 太郎">
+      </div>
+      
+      <div class="form-group">
+        <label for="nameEn">名前（英語）</label>
+        <input type="text" id="nameEn" value="Tarou Tanaka">
+      </div>
+      
+      <div class="form-group">
+        <label for="slogan">スローガン</label>
+        <input type="text" id="slogan" value="好きを、見つける。">
+      </div>
+      
+      <div class="form-group">
+        <label for="logoText">ロゴテキスト</label>
+        <input type="text" id="logoText" value="Kyokko Broadcasting Station">
+      </div>
+      
+      <div class="form-group">
+        <label for="schoolName">学校名（テンプレート3のみ）</label>
+        <input type="text" id="schoolName" value="北海道旭川工業高等学校 放送局 / KBS 旭工放送局">
+      </div>
+      
+      <div class="form-group">
+        <label for="contactInfo">連絡先情報（テンプレート3のみ）</label>
+        <textarea id="contactInfo" rows="5">〒078-8804
+北海道旭川市緑が丘東4条1丁目1-1　2階放送室
+E-mail:kbs.ahkc@gmail.com
+X(旧:Twitter):https://x.com/kbs_asahikawa
+http://www.kyokko.hokkaido-c.ed.jp/z20/r32</textarea>
+      </div>
+      
+      <div class="form-group">
+        <label for="showTrainingBadge">研修中バッジ表示（テンプレート2のみ）</label>
+        <input type="checkbox" id="showTrainingBadge" checked>
+      </div>
+      
+      <div class="button-container">
+        <button onclick="updatePreview()">プレビュー更新</button>
+        <button id="downloadBtn" onclick="prepareDownload()">ダウンロード</button>
+        <button id="printBtn" onclick="printCard()">印刷</button>
+        <button class="button-secondary" onclick="resetForm()">リセット</button>
+      </div>
+    </div>
+    
+    <div class="preview-container">
+      <div class="preview">
+        <div class="name-card template-1" id="previewCard">
+          <div class="organization">KBS 旭工放送局</div>
+          <div class="position-container">
+            <div class="position">役職</div>
+            <div class="department">●年学科</div>
+          </div>
+          <div class="name-container">
+            <div class="name">田中 太郎</div>
+            <div class="name-en">Tarou Tanaka</div>
+          </div>
+          <div class="slogan">好きを、見つける。</div>
+          <div class="logo">
+            <div class="kbs-logo">
+              <div class="left"></div>
+              <div class="right"></div>
+            </div>
+          </div>
+          <div class="logo-text">Kyokko Broadcasting Station</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="download-container">
+      <a id="downloadLink" style="display: none;">Download</a>
+    </div>
+    
+    <!-- 印刷用のコンテナ (通常時は非表示) -->
+    <div class="print-container" style="display: none;">
+      <div class="print-name-card" id="printCard"></div>
+    </div>
+  </div>
+
+  <script>
+    let currentTemplate = 1;
+    
+    function selectTemplate(templateNumber) {
+      currentTemplate = templateNumber;
+      
+      // Update template selection UI
+      document.querySelectorAll('.template').forEach(template => {
+        template.classList.remove('selected');
+      });
+      document.querySelector(`#template-${templateNumber}`).classList.add('selected');
+      
+      // Update preview
+      updatePreview();
+    }
+    
+    function updatePreview() {
+      const previewCard = document.getElementById('previewCard');
+      
+      // Update template class
+      previewCard.className = `name-card template-${currentTemplate}`;
+      
+      // Get form values
+      const organization = document.getElementById('organization').value;
+      const position = document.getElementById('position').value;
+      const department = document.getElementById('department').value;
+      const name = document.getElementById('name').value;
+      const nameEn = document.getElementById('nameEn').value;
+      const slogan = document.getElementById('slogan').value;
+      const logoText = document.getElementById('logoText').value;
+      const schoolName = document.getElementById('schoolName').value;
+      const contactInfo = document.getElementById('contactInfo').value;
+      const showTrainingBadge = document.getElementById('showTrainingBadge').checked;
+      
+      // Create HTML content based on template
+      let cardHTML = '';
+      
+      if (currentTemplate === 1) {
+        cardHTML = `
+          <div class="organization">${organization}</div>
+          <div class="position-container">
+            <div class="position">${position}</div>
+            <div class="department">${department}</div>
+          </div>
+          <div class="name-container">
+            <div class="name">${name}</div>
+            <div class="name-en">${nameEn}</div>
+          </div>
+          <div class="slogan">${slogan}</div>
+          <div class="logo">
+            <div class="kbs-logo">
+              <div class="left"></div>
+              <div class="right"></div>
+            </div>
+          </div>
+          <div class="logo-text">${logoText}</div>
+        `;
+      } else if (currentTemplate === 2) {
+        cardHTML = `
+          <div class="organization">${organization}</div>
+          ${showTrainingBadge ? `
+            <div class="training-badge">
+              研修中
+              <div class="training-icon">
+                <div class="train-icon">
+                  <div class="left"></div>
+                  <div class="right"></div>
+                </div>
+              </div>
+            </div>
+          ` : ''}
+          <div class="position-container">
+            <div class="position">${position}</div>
+            <div class="department">${department}</div>
+          </div>
+          <div class="name-container">
+            <div class="name">${name}</div>
+            <div class="name-en">${nameEn}</div>
+          </div>
+          <div class="slogan">${slogan}</div>
+          <div class="logo">
+            <div class="kbs-logo">
+              <div class="left"></div>
+              <div class="right"></div>
+            </div>
+          </div>
+          <div class="logo-text">${logoText}</div>
+        `;
+      } else if (currentTemplate === 3) {
+        cardHTML = `
+          <div class="position-container">
+            <div class="position">${position}</div>
+            <div class="department">${department}</div>
+          </div>
+          <div class="name-container">
+            <div class="name">${name}</div>
+            <div class="name-en">${nameEn}</div>
+          </div>
+          <div class="school-name">${schoolName}</div>
+          <div class="contact-info">${contactInfo.replace(/\n/g, '<br>')}</div>
+          <div class="slogan">${slogan}</div>
+          <div class="logo">
+            <div class="kbs-logo">
+              <div class="left"></div>
+              <div class="right"></div>
+            </div>
+          </div>
+          <div class="logo-text">${logoText}</div>
+        `;
+      }
+      
+      previewCard.innerHTML = cardHTML;
+    }
+    
+    function resetForm() {
+      document.getElementById('organization').value = 'KBS 旭工放送局';
+      document.getElementById('position').value = '役職';
+      document.getElementById('department').value = '●年学科';
+      document.getElementById('name').value = '田中 太郎';
+      document.getElementById('nameEn').value = 'Tarou Tanaka';
+      document.getElementById('slogan').value = '好きを、見つける。';
+      document.getElementById('logoText').value = 'Kyokko Broadcasting Station';
+      document.getElementById('schoolName').value = '北海道旭川工業高等学校 放送局 / KBS 旭工放送局';
+      document.getElementById('contactInfo').value = '〒078-8804\n北海道旭川市緑が丘東4条1丁目1-1　2階放送室\nE-mail:kbs.ahkc@gmail.com\nX(旧:Twitter):https://x.com/kbs_asahikawa\nhttp://www.kyokko.hokkaido-c.ed.jp/z20/r32';
+      document.getElementById('showTrainingBadge').checked = true;
+      
+      updatePreview();
+    }
+    
+    function prepareDownload() {
+      const previewCard = document.getElementById('previewCard');
+      const cardContent = previewCard.outerHTML;
+      const name = document.getElementById('name').value;
+      
+      // Create a standalone HTML document
+      const htmlContent = `
+        <!DOCTYPE html>
+        <html lang="ja">
+        <head>
+          <meta charset="UTF-8">
+          <title>名刺 - ${name}</title>
+          <style>
+            * {
+              box-sizing: border-box;
+              margin: 0;
+              padding: 0;
+              font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Arial", sans-serif;
+            }
+            
+            body {
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              min-height: 100vh;
+              background-color: #f5f5f5;
+            }
+            
+            ${document.querySelector('style').textContent}
+            
+            .name-card {
+              width: 91mm;
+              height: 55mm;
+              box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            }
+            
+            /* 印刷用のスタイル */
+            @media print {
+              body {
+                background-color: white;
+              }
+              
+              .name-card {
+                box-shadow: none;
+                border: none;
+              }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="name-card ${previewCard.className.replace('name-card ', '')}">
+            ${previewCard.innerHTML}
+          </div>
+        </body>
+        </html>
+      `;
+      
+      // Create a Blob from the HTML
+      const blob = new Blob([htmlContent], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      
+      // Setup download link
+      const downloadLink = document.getElementById('downloadLink');
+      downloadLink.href = url;
+      downloadLink.download = `namecard_${name.replace(/\s/g, '_')}.html`;
+      downloadLink.style.display = 'inline';
+      downloadLink.click();
+      
+      // Clean up
+      setTimeout(() => {
+        URL.revokeObjectURL(url);
+        downloadLink.style.display = 'none';
+      }, 100);
+    }
+    
+    // 印刷機能
+    function printCard() {
+      // プレビューの内容を複製して印刷用コンテナに配置
+      const previewCard = document.getElementById('previewCard');
+      const printCard = document.getElementById('printCard');
+      
+      // クラス名を設定
+      printCard.className = previewCard.className;
+      // 内容をコピー
+      printCard.innerHTML = previewCard.innerHTML;
+      
+      // 印刷用コンテナを表示
+      document.querySelector('.print-container').style.display = 'block';
+      
+      // 少し遅延して印刷ダイアログを表示
+      setTimeout(() => {
+        window.print();
+        
+        // 印刷ダイアログが閉じた後にコンテナを非表示に
+        setTimeout(() => {
+          document.querySelector('.print-container').style.display = 'none';
+        }, 1000);
+      }, 300);
+    }
+    
+    // ページロード時にプレビュー初期化
+    document.addEventListener('DOMContentLoaded', updatePreview);
+  </script>
+</body>
+</html>
