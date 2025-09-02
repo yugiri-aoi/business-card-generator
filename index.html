@@ -126,6 +126,7 @@
 
         .card-main{
           border-left: 3px solid #333;
+          margin-top: 10px;
         }
 
         .card-position {
@@ -143,7 +144,7 @@
         }
 
         .card-name {
-            font-size: 36px;
+            font-size: 44px;
             font-weight: 700;
             margin-bottom: 0;
             color: #333;
@@ -172,7 +173,7 @@
             bottom: 0;
             right: 0;
             margin-right: -20px;
-            width: 100px;
+            width: 120px;
             background: #333;
             display: flex;
             align-items: center;
@@ -187,19 +188,21 @@
             font-style: italic;
         }
 
-        .download-btn {
-            margin-top: 30px;
-            padding: 15px 30px;
+        .download-btn{
+            width: 100%;
+            margin-top: 10px;
+            padding: 15px 20px;
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
             border: none;
             border-radius: 10px;
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
             text-transform: uppercase;
             letter-spacing: 1px;
+
         }
 
         .download-btn:hover {
@@ -236,22 +239,22 @@
             <form id="cardForm">
                 <div class="form-group">
                     <label for="name">名前</label>
-                    <input type="text" id="name" placeholder="例：山田太郎">
+                    <input type="text" id="name" placeholder="例：山田 太郎">
                 </div>
                 
                 <div class="form-group">
                     <label for="reading">読み仮名</label>
-                    <input type="text" id="reading" placeholder="例：やまだたろう">
+                    <input type="text" id="reading" placeholder="例：Tarou Yamada">
                 </div>
                 
                 <div class="form-group">
                     <label for="position">役職</label>
-                    <input type="text" id="position" placeholder="例：マーケティング部長">
+                    <input type="text" id="position" placeholder="例：局長">
                 </div>
                 
                 <div class="form-group">
                     <label for="grade">学年・学科</label>
-                    <input type="text" id="grade" placeholder="例：3年生電気科">
+                    <input type="text" id="grade" placeholder="例：4年生自動車科">
                 </div>
                 
                 <button type="button" class="download-btn" onclick="downloadCardAsPDF()">
@@ -269,10 +272,10 @@
                 <div class="card-content">
                     <div class="company-name">KBS 旭工放送局</div>
                     <div class="card-main">
-                      <div class="card-position" id="previewPosition">役職</div>
-                      <div class="card-grade" id="previewGrade">学年</div>
-                      <div class="card-name" id="previewName">お名前</div>
-                      <div class="card-reading" id="previewReading">おなまえ</div>
+                      <div class="card-position" id="previewPosition">局長</div>
+                      <div class="card-grade" id="previewGrade">4年自動車科</div>
+                      <div class="card-name" id="previewName">山田 太郎</div>
+                      <div class="card-reading" id="previewReading">Tarou Yamada</div>
                     </div>
                     <img class="card-logo" src="logo.png">
                 </div>
@@ -283,10 +286,10 @@
     <script>
         // リアルタイムプレビュー機能
         function updatePreview() {
-            const name = document.getElementById('name').value || 'お名前';
-            const reading = document.getElementById('reading').value || 'おなまえ';
-            const position = document.getElementById('position').value || '役職';
-            const grade = document.getElementById('grade').value || '学年';
+            const name = document.getElementById('name').value || '山田 太郎';
+            const reading = document.getElementById('reading').value || 'Tarou Yamada';
+            const position = document.getElementById('position').value || '局長';
+            const grade = document.getElementById('grade').value || '4年自動車科';
             
             document.getElementById('previewName').textContent = name;
             document.getElementById('previewReading').textContent = reading;
