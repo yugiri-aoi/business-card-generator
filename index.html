@@ -112,7 +112,7 @@
         }
 
         .company-name {
-            font-size: 2vh;
+            font-size: 18px;
             font-weight: 700;
             color: #333;
             margin-bottom: 20px;
@@ -120,35 +120,36 @@
         }
 
         .card-main{
-          border-left: 2px solid #333;
-          margin-top: 5px;
+            border-left: 2px solid #333;
+            margin-top: 10px;
         }
 
         .card-position {
-            font-size: 1vh;
+            font-size: 12px;
             color: #666;
             margin-bottom: 0;
             padding-left: 8px;
         }
 
         .card-grade {
-            font-size: 1vh;
+            font-size: 12px;
             color: #666;
             margin-bottom: 0;
             padding-left: 8px;
         }
 
         .card-name {
-            font-size: 5vh;
+            font-size: 45px;
             font-weight: 700;
             margin-bottom: 0;
             color: #333;
             letter-spacing: 2px;
             padding-left: 6px;
+            line-height: 1.1;
         }
 
         .card-reading {
-            font-size: 1vh;
+            font-size: 11px;
             color: #666;
             margin-bottom: 5px;
             padding-left: 8px;
@@ -177,13 +178,42 @@
             font-weight: bold;
         }
 
+        /* PDF生成用の固定サイズクラス */
+        .business-card.pdf-generation {
+            width: 400px !important;
+            height: 240px !important;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        .business-card.pdf-generation .company-name {
+            font-size: 18px !important;
+        }
+
+        .business-card.pdf-generation .card-position {
+            font-size: 12px !important;
+        }
+
+        .business-card.pdf-generation .card-grade {
+            font-size: 12px !important;
+        }
+
+        .business-card.pdf-generation .card-name {
+            font-size: 45px !important;
+            line-height: 1.1 !important;
+        }
+
+        .business-card.pdf-generation .card-reading {
+            font-size: 11px !important;
+        }
+
         .empty-state {
             text-align: center;
             color: #999;
             font-style: italic;
         }
 
-        .download-btn{
+        .download-btn, .reset-btn{
             width: 100%;
             margin-top: 10px;
             padding: 15px 20px;
@@ -197,15 +227,23 @@
             transition: all 0.3s ease;
             text-transform: uppercase;
             letter-spacing: 1px;
-
         }
 
-        .download-btn:hover {
+        .reset-btn {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            margin-bottom: 20px;
+        }
+
+        .download-btn:hover, .reset-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
         }
 
-        .download-btn:active {
+        .reset-btn:hover {
+            box-shadow: 0 10px 25px rgba(220, 53, 69, 0.3);
+        }
+
+        .download-btn:active, .reset-btn:active {
             transform: translateY(0);
         }
 
@@ -221,6 +259,13 @@
                 transform: none;
             }
             
+            .business-card .company-name {
+                font-size: 16px;
+            }
+            
+            .business-card .card-name {
+                font-size: 30px;
+            }
         }
     </style>
 </head>
@@ -248,6 +293,10 @@
                     <label for="grade">学年・学科</label>
                     <input type="text" id="grade" placeholder="例：4年生自動車科">
                 </div>
+                
+                <button type="button" class="reset-btn" onclick="resetForm()">
+                    入力をリセット
+                </button>
                 
                 <button type="button" class="download-btn" onclick="downloadCardAsPDF()">
                     名刺をPDFでダウンロード
@@ -289,95 +338,111 @@
             document.getElementById('previewGrade').textContent = grade;
         }
 
+        // フォームをリセットする関数
+        function resetForm() {
+            document.getElementById('name').value = '';
+            document.getElementById('reading').value = '';
+            document.getElementById('position').value = '';
+            document.getElementById('grade').value = '';
+            updatePreview(); // プレビューも更新
+        }
+
         // 入力フィールドにイベントリスナーを追加
         document.getElementById('name').addEventListener('input', updatePreview);
         document.getElementById('reading').addEventListener('input', updatePreview);
         document.getElementById('position').addEventListener('input', updatePreview);
         document.getElementById('grade').addEventListener('input', updatePreview);
 
-        // html2canvasを使用してCSSをそのまま画像として出力
-        function downloadCardAsImage() {
+        // 名刺を固定サイズでレンダリングする関数
+        function renderCardForExport(callback) {
             const businessCard = document.getElementById('businessCard');
             
-            // 一時的に変形を無効化（3D効果を除去）
-            const originalTransform = businessCard.style.transform;
-            businessCard.style.transform = 'none';
-            businessCard.style.boxShadow = 'none';
+            // PDF生成用クラスを追加（固定サイズ）
+            businessCard.classList.add('pdf-generation');
             
-            html2canvas(businessCard, {
-                backgroundColor: 'white',
-                scale: 3, // 高解像度
-                useCORS: true, // 外部画像対応
-                allowTaint: false,
-                width: 400,
-                height: 240
-            }).then(function(canvas) {
-                // 元のスタイルに戻す
-                businessCard.style.transform = originalTransform;
-                businessCard.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.15)';
-                
-                // ダウンロード
-                canvas.toBlob(function(blob) {
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = 'business-card.png';
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
+            // レンダリング完了を待つ
+            setTimeout(() => {
+                callback(businessCard);
+            }, 100);
+        }
+
+        // html2canvasを使用してCSSをそのまま画像として出力
+        function downloadCardAsImage() {
+            renderCardForExport((businessCard) => {
+                html2canvas(businessCard, {
+                    backgroundColor: 'white',
+                    scale: 3, // 高解像度
+                    useCORS: true, // 外部画像対応
+                    allowTaint: false,
+                    width: 400,
+                    height: 240,
+                    windowWidth: 1200, // 固定ウィンドウ幅
+                    windowHeight: 800   // 固定ウィンドウ高さ
+                }).then(function(canvas) {
+                    // PDF生成用クラスを削除
+                    businessCard.classList.remove('pdf-generation');
+                    
+                    // ダウンロード
+                    canvas.toBlob(function(blob) {
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'business-card.png';
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                    });
+                }).catch(function(error) {
+                    businessCard.classList.remove('pdf-generation');
+                    console.error('画像生成エラー:', error);
+                    alert('画像の生成に失敗しました。再度お試しください。');
                 });
-            }).catch(function(error) {
-                console.error('画像生成エラー:', error);
-                alert('画像の生成に失敗しました。再度お試しください。');
             });
         }
 
         // 名刺サイズのPDFとして出力
         function downloadCardAsPDF() {
-            const businessCard = document.getElementById('businessCard');
-            
-            // 一時的に変形を無効化（3D効果を除去）
-            const originalTransform = businessCard.style.transform;
-            businessCard.style.transform = 'none';
-            businessCard.style.boxShadow = 'none';
-            
-            html2canvas(businessCard, {
-                backgroundColor: 'white',
-                scale: 4, // PDFのために高解像度
-                useCORS: true,
-                allowTaint: false,
-                width: 400,
-                height: 240
-            }).then(function(canvas) {
-                // 元のスタイルに戻す
-                businessCard.style.transform = originalTransform;
-                businessCard.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.15)';
-                
-                // jsPDFを使用してPDF作成
-                const { jsPDF } = window.jspdf;
-                
-                // 名刺の標準サイズ（91mm x 55mm）
-                const cardWidthMM = 91;
-                const cardHeightMM = 55;
-                
-                // PDFを名刺サイズで作成
-                const pdf = new jsPDF({
-                    orientation: 'landscape', // 横向き
-                    unit: 'mm',
-                    format: [cardWidthMM, cardHeightMM]
+            renderCardForExport((businessCard) => {
+                html2canvas(businessCard, {
+                    backgroundColor: 'white',
+                    scale: 4, // PDFのために高解像度
+                    useCORS: true,
+                    allowTaint: false,
+                    width: 400,
+                    height: 240,
+                    windowWidth: 1200, // 固定ウィンドウ幅
+                    windowHeight: 800   // 固定ウィンドウ高さ
+                }).then(function(canvas) {
+                    // PDF生成用クラスを削除
+                    businessCard.classList.remove('pdf-generation');
+                    
+                    // jsPDFを使用してPDF作成
+                    const { jsPDF } = window.jspdf;
+                    
+                    // 名刺の標準サイズ（91mm x 55mm）
+                    const cardWidthMM = 91;
+                    const cardHeightMM = 55;
+                    
+                    // PDFを名刺サイズで作成
+                    const pdf = new jsPDF({
+                        orientation: 'landscape', // 横向き
+                        unit: 'mm',
+                        format: [cardWidthMM, cardHeightMM]
+                    });
+                    
+                    // Canvasの画像をPDFに追加
+                    const imgData = canvas.toDataURL('image/png');
+                    pdf.addImage(imgData, 'PNG', 0, 0, cardWidthMM, cardHeightMM);
+                    
+                    // PDFをダウンロード
+                    pdf.save('business-card.pdf');
+                    
+                }).catch(function(error) {
+                    businessCard.classList.remove('pdf-generation');
+                    console.error('PDF生成エラー:', error);
+                    alert('PDFの生成に失敗しました。再度お試しください。');
                 });
-                
-                // Canvasの画像をPDFに追加
-                const imgData = canvas.toDataURL('image/png');
-                pdf.addImage(imgData, 'PNG', 0, 0, cardWidthMM, cardHeightMM);
-                
-                // PDFをダウンロード
-                pdf.save('business-card.pdf');
-                
-            }).catch(function(error) {
-                console.error('PDF生成エラー:', error);
-                alert('PDFの生成に失敗しました。再度お試しください。');
             });
         }
 
